@@ -1,0 +1,38 @@
+@import './base.css';
+
+:root {
+  --bg-0: #f8faff;
+  --bg-1: #ffffff;
+  --bg-glass: rgba(255,255,255,0.55);
+  --border-glass: rgba(255,255,255,0.35);
+  --blur-1: blur(22px) saturate(180%);
+  --round-lg: 22px;
+  --round-md: 14px;
+  --shadow-soft: 0 8px 32px rgba(0,0,0,0.06);
+  --shadow-glass: 0 12px 36px rgba(0,0,0,0.12);
+}
+
+body {
+  background: var(--bg-0);
+  padding: 0;
+  margin: 0;
+}
+
+ion-content {
+  --background: var(--bg-0);
+}
+
+.card {
+  background: var(--bg-1);
+  border-radius: var(--round-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-1);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--round-lg);
+  box-shadow: var(--shadow-glass);
+}
