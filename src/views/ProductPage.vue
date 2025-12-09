@@ -53,13 +53,24 @@
             <p class="short-desc">{{ product.description }}</p>
 
             <div class="controls">
-              <div class="qty">
-                <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
-                  <ion-icon :icon="removeOutline" />
-                </ion-button>
-                <div class="qty-value">{{ qty }}</div>
-                <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
-                  <ion-icon :icon="addOutline" />
+              <div class="top-row">
+                <div class="qty">
+                  <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
+                    <ion-icon :icon="removeOutline" />
+                  </ion-button>
+                  <div class="qty-value">{{ qty }}</div>
+                  <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
+                    <ion-icon :icon="addOutline" />
+                  </ion-button>
+                </div>
+
+                <ion-button 
+                  class="wish" 
+                  fill="outline" 
+                  @click="toggleWishlist"
+                  :disabled="wishlistLoading"
+                >
+                  <ion-icon :icon="isInWishlist ? heart : heartOutline" />
                 </ion-button>
               </div>
 
@@ -72,15 +83,6 @@
               >
                 <ion-icon slot="start" :icon="cartOutline" />
                 Add to cart
-              </ion-button>
-
-              <ion-button 
-                class="wish" 
-                fill="outline" 
-                @click="toggleWishlist"
-                :disabled="wishlistLoading"
-              >
-                <ion-icon :icon="isInWishlist ? heart : heartOutline" />
               </ion-button>
             </div>
           </div>
@@ -422,10 +424,15 @@ ion-chip.type {
 
 .controls {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.top-row {
+  display: flex;
   gap: 12px;
   align-items: center;
-  margin-top: 8px;
-  flex-wrap: wrap;
 }
 
 .qty {
@@ -436,6 +443,7 @@ ion-chip.type {
   border-radius: 12px;
   background: #f3f4f6;
   min-height: 44px;
+  flex: 1;
 }
 .qty-value { 
   min-width: 32px; 
@@ -452,8 +460,8 @@ ion-chip.type {
 
 .add { 
   --border-radius: 12px; 
-  flex: 1;
-  min-height: 44px;
+  width: 100%;
+  min-height: 48px;
   font-weight: 700; 
   font-size: 15px;
 }
@@ -656,24 +664,6 @@ ion-chip.type {
     font-size: 13px;
   }
   
-  .controls {
-    gap: 10px;
-    width: 100%;
-  }
-  
-  .qty {
-    flex: 0 0 auto;
-  }
-  
-  .add {
-    flex: 1;
-    min-width: 0;
-  }
-  
-  .wish {
-    flex: 0 0 auto;
-  }
-  
   .details {
     padding: 14px;
     border-radius: 14px;
@@ -705,39 +695,6 @@ ion-chip.type {
   .meta {
     font-size: 12px;
     gap: 12px;
-  }
-}
-
-@media (max-width: 400px) {
-  .container {
-    padding: 10px 10px 90px;
-  }
-  
-  .name {
-    font-size: 18px;
-  }
-  
-  .price {
-    font-size: 22px;
-  }
-  
-  .hero-card {
-    padding: 14px;
-  }
-  
-  .controls {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .qty {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .add,
-  .wish {
-    width: 100%;
   }
 }
 </style>
