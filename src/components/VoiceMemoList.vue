@@ -72,6 +72,8 @@ import {
 import { auth, storage } from '@/firebase/config'
 import { ref as sRef, listAll, getDownloadURL, getMetadata, deleteObject, updateMetadata } from 'firebase/storage'
 
+const emit = defineEmits(['playMemo'])
+
 const memos = ref([])
 const editingId = ref(null)
 const editingName = ref('')
@@ -158,14 +160,16 @@ const formatDate = (dateString) => {
 }
 
 const playMemo = (memo) => {
-  window.open(memo.url, '_blank')
+  emit('playMemo', memo)
 }
 
 const downloadMemo = (memo) => {
+  // Direct download using Firebase URL with download token
   const a = document.createElement('a')
   a.href = memo.url
   a.download = memo.displayName + '.webm'
   a.target = '_blank'
+  a.rel = 'noopener noreferrer'
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

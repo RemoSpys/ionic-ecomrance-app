@@ -24,6 +24,7 @@
         class="circle-btn" 
         :class="{ recording: isRecording }" 
         @click="toggleRecord"
+        :disabled="loadedExternalAudio"
       >
         <ion-icon :icon="isRecording ? stopOutline : micOutline"></ion-icon>
       </button>
@@ -50,11 +51,24 @@
         </div>
         
         <div class="cloud-actions">
-          <button class="cloud-btn upload-btn" @click="saveToStorage" title="Save to Storage">
+          <button 
+            v-if="!loadedExternalAudio" 
+            class="cloud-btn upload-btn" 
+            @click="saveToStorage" 
+            title="Save to Storage"
+          >
             <ion-icon :icon="cloudUploadOutline" />
           </button>
           <button class="cloud-btn download-btn" @click="downloadRecording" title="Download">
             <ion-icon :icon="downloadOutline" />
+          </button>
+          <button 
+            v-if="loadedExternalAudio" 
+            class="cloud-btn clear-btn" 
+            @click="clearLoadedAudio" 
+            title="Clear"
+          >
+            <ion-icon :icon="closeOutline" />
           </button>
         </div>
       </div>
@@ -67,7 +81,7 @@
 <script setup>
 import { IonIcon } from "@ionic/vue"
 import { ref, computed, onUnmounted } from "vue"
-import { micOutline, stopOutline, playOutline, pauseOutline, cloudUploadOutline, downloadOutline } from "ionicons/icons"
+import { micOutline, stopOutline, playOutline, pauseOutline, cloudUploadOutline, downloadOutline, closeOutline } from "ionicons/icons"
 import { auth, storage } from "@/firebase/config"
 import { ref as sRef, uploadBytes } from "firebase/storage"
 
@@ -81,6 +95,8 @@ const currentTime = ref(0)
 const duration = ref(0)
 const recordingTime = ref("0:00")
 const seekedPosition = ref(null)
+const loadedExternalAudio = ref(false)
+const currentMemoName = ref('')
 
 const waveformContainer = ref(null)
 const audioElement = ref(null)
@@ -351,13 +367,91 @@ const saveToStorage = async () => {
 const downloadRecording = () => {
   if (!audioUrl.value) return
 
-  const a = document.createElement('a')
-  a.href = audioUrl.value
-  a.download = `voice-memo-${Date.now()}.webm`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
+  try {
+    const a = document.createElement('a')
+    
+    if (loadedExternalAudio.value) {
+      // If it's a loaded memo, use the Firebase URL directly
+      a.href = audioUrl.value
+      a.download = currentMemoName.value + '.webm'
+      a.target = '_blank'
+      a.rel = 'noopener noreferrer'
+    } else {
+      // If it's a new recording, use the blob URL
+      a.href = audioUrl.value
+      a.download = `voice-memo-${Date.now()}.webm`
+    }
+    
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  } catch (error) {
+    console.error('Download error:', error)
+    alert('Failed to download: ' + error.message)
+  }
 }
+
+// New function to load external audio
+const loadAudio = async (memo) => {
+  try {
+    // Stop any current playback
+    if (isPlaying.value) {
+      audioElement.value.pause()
+      isPlaying.value = false
+    }
+
+    // Clear current audio
+    if (audioUrl.value) {
+      URL.revokeObjectURL(audioUrl.value)
+    }
+
+    // Load the new audio
+    audioUrl.value = memo.url
+    currentMemoName.value = memo.displayName
+    loadedExternalAudio.value = true
+    recordedBlob = null
+    
+    // Generate waveform bars for the loaded audio
+    displayBars.value = Array(BAR_COUNT).fill(0).map(() => Math.random() * 0.6 + 0.3)
+    
+    if (audioElement.value) {
+      audioElement.value.src = audioUrl.value
+      audioElement.value.load()
+    }
+
+    // Reset playback state
+    currentTime.value = 0
+    seekedPosition.value = null
+    playbackRate.value = 1
+
+  } catch (error) {
+    console.error('Load audio error:', error)
+    alert('Failed to load audio: ' + error.message)
+  }
+}
+
+const clearLoadedAudio = () => {
+  if (isPlaying.value) {
+    audioElement.value.pause()
+    isPlaying.value = false
+  }
+  
+  if (audioUrl.value) {
+    URL.revokeObjectURL(audioUrl.value)
+  }
+  
+  audioUrl.value = null
+  loadedExternalAudio.value = false
+  currentMemoName.value = ''
+  recordedBlob = null
+  displayBars.value = Array(BAR_COUNT).fill(0.1)
+  currentTime.value = 0
+  duration.value = 0
+  seekedPosition.value = null
+  playbackRate.value = 1
+}
+
+defineExpose({ loadAudio })
 
 onUnmounted(() => {
   if (animationFrame) cancelAnimationFrame(animationFrame)
@@ -467,8 +561,13 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.circle-btn:hover {
+.circle-btn:hover:not(:disabled) {
   transform: scale(1.05);
+}
+
+.circle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .circle-btn.recording {
@@ -592,6 +691,16 @@ onUnmounted(() => {
 
 .download-btn:hover {
   background: rgba(52, 199, 89, 0.2);
+  transform: scale(1.1);
+}
+
+.clear-btn {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+}
+
+.clear-btn:hover {
+  background: rgba(255, 59, 48, 0.2);
   transform: scale(1.1);
 }
 
