@@ -53,13 +53,24 @@
             <p class="short-desc">{{ product.description }}</p>
 
             <div class="controls">
-              <div class="qty">
-                <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
-                  <ion-icon :icon="removeOutline" />
-                </ion-button>
-                <div class="qty-value">{{ qty }}</div>
-                <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
-                  <ion-icon :icon="addOutline" />
+              <div class="top-row">
+                <div class="qty">
+                  <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
+                    <ion-icon :icon="removeOutline" />
+                  </ion-button>
+                  <div class="qty-value">{{ qty }}</div>
+                  <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
+                    <ion-icon :icon="addOutline" />
+                  </ion-button>
+                </div>
+
+                <ion-button 
+                  class="wish" 
+                  fill="outline" 
+                  @click="toggleWishlist"
+                  :disabled="wishlistLoading"
+                >
+                  <ion-icon :icon="isInWishlist ? heart : heartOutline" />
                 </ion-button>
               </div>
 
@@ -68,18 +79,10 @@
                 color="primary"
                 :disabled="product.stock === 0"
                 @click="addToCart"
+                expand="block"
               >
                 <ion-icon slot="start" :icon="cartOutline" />
-                Add to cart2
-              </ion-button>
-
-              <ion-button 
-                class="wish" 
-                fill="clear" 
-                @click="toggleWishlist"
-                :disabled="wishlistLoading"
-              >
-                <ion-icon :icon="isInWishlist ? heart : heartOutline" />
+                Add to cart
               </ion-button>
             </div>
           </div>
@@ -271,27 +274,30 @@ onMounted(loadProduct)
 }
 
 .container {
-  max-width: 980px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 18px 14px 120px;
+  padding: 20px 16px 120px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px;
 }
 
 .hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 20px;
   align-items: start;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .image-wrap {
   position: relative;
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  min-height: 360px;
-  box-shadow: 0 18px 40px rgba(16,24,40,0.08);
+  aspect-ratio: 1 / 1;
+  max-height: 450px;
+  box-shadow: 0 12px 32px rgba(16,24,40,0.08);
   background: linear-gradient(180deg,#e6eefc,#ffffff);
 }
 
@@ -311,18 +317,21 @@ onMounted(loadProduct)
   left: 12px;
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 ion-chip.brand {
   background: rgba(37,99,235,0.12);
   color: #1e3a8a;
   font-weight: 700;
   border-radius: 999px;
+  font-size: 12px;
 }
 ion-chip.type {
   background: rgba(16,185,129,0.08);
   color: #065f46;
   font-weight: 700;
   border-radius: 999px;
+  font-size: 12px;
 }
 
 .rating {
@@ -331,36 +340,41 @@ ion-chip.type {
   left: 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.7);
-  padding: 6px 8px;
+  gap: 6px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(10px);
+  padding: 8px 12px;
   border-radius: 999px;
-  box-shadow: 0 6px 16px rgba(16,24,40,0.06);
+  box-shadow: 0 6px 16px rgba(16,24,40,0.1);
 }
 .rating ion-icon { font-size: 16px; color: #fbbf24; }
 .rating .star-on { color: #f59e0b; }
-.rating .reviews { font-size: 13px; color: #374151; }
+.rating .reviews { font-size: 13px; color: #374151; font-weight: 600; }
 
 .hero-card {
   background: #ffffff;
   border-radius: 16px;
-  padding: 18px;
-  box-shadow: 0 14px 34px rgba(16,24,40,0.06);
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(16,24,40,0.06);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .name {
   font-size: 22px;
   font-weight: 800;
   margin: 0;
+  line-height: 1.25;
 }
 
 .subtitle {
   font-size: 13px;
   color: #6b7280;
   margin-top: -4px;
+  font-weight: 500;
 }
 
 .price-row {
@@ -368,11 +382,25 @@ ion-chip.type {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 0;
 }
 
-.price-block { display: flex; align-items: baseline; gap: 10px; }
-.price { font-size: 28px; color: #1e40af; font-weight: 800; }
-.old { color: #9ca3af; text-decoration: line-through; font-size: 14px; }
+.price-block { 
+  display: flex; 
+  align-items: baseline; 
+  gap: 10px; 
+}
+.price { 
+  font-size: 26px; 
+  color: #1e40af; 
+  font-weight: 800; 
+}
+.old { 
+  color: #9ca3af; 
+  text-decoration: line-through; 
+  font-size: 14px; 
+}
 
 .stock {
   display: inline-flex;
@@ -380,76 +408,372 @@ ion-chip.type {
   gap: 6px;
   color: #065f46;
   font-weight: 700;
+  font-size: 13px;
+  padding: 6px 12px;
+  background: rgba(16,185,129,0.1);
+  border-radius: 999px;
 }
-.stock.out { color: #b91c1c; }
-.stock.low { color: #b45309; }
+.stock.out { 
+  color: #b91c1c; 
+  background: rgba(185,28,28,0.1);
+}
+.stock.low { 
+  color: #b45309; 
+  background: rgba(180,83,9,0.1);
+}
 
-.short-desc { color: #374151; line-height: 1.45; }
+.short-desc { 
+  color: #374151; 
+  line-height: 1.5; 
+  font-size: 14px;
+}
 
 .controls {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.top-row {
+  display: flex;
   gap: 12px;
   align-items: center;
-  margin-top: 6px;
 }
 
 .qty {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 8px 12px;
   border-radius: 12px;
   background: #f3f4f6;
+  min-height: 44px;
+  flex: 1;
 }
-.qty-value { min-width: 26px; text-align: center; font-weight: 700; }
+.qty-value { 
+  min-width: 32px; 
+  text-align: center; 
+  font-weight: 700; 
+  font-size: 16px;
+}
+.qty ion-button {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  min-width: 36px;
+  min-height: 36px;
+}
 
-.add { --border-radius: 12px; padding: 10px 14px; font-weight: 700; }
-.wish { color: #ef4444; }
+.add { 
+  --border-radius: 12px; 
+  width: 100%;
+  min-height: 48px;
+  font-weight: 700; 
+  font-size: 15px;
+}
+
+.wish { 
+  color: #ef4444;
+  --border-radius: 12px;
+  min-height: 44px;
+  min-width: 44px;
+}
 
 .details {
   background: #fff;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 16px;
   box-shadow: 0 10px 30px rgba(16,24,40,0.04);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .accordion-toggle {
   --padding-start: 0;
   --padding-end: 0;
+  --min-height: 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
 }
-.accordion-toggle ion-icon { transition: transform .28s ease; }
+.accordion-toggle ion-label h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+.accordion-toggle ion-label .muted {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+.accordion-toggle ion-icon { 
+  transition: transform .28s ease;
+  font-size: 24px;
+}
 .accordion-toggle ion-icon.open { transform: rotate(180deg); }
 
 .spec-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
   padding: 8px 0;
 }
 
-.spec { background: #f8fafc; padding: 10px; border-radius: 10px; }
-.spec .k { font-size: 12px; color: #6b7280; font-weight: 700; }
-.spec .v { font-size: 14px; color: #111827; margin-top: 6px; }
+.spec { 
+  background: #f8fafc; 
+  padding: 12px; 
+  border-radius: 10px; 
+}
+.spec .k { 
+  font-size: 12px; 
+  color: #6b7280; 
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.spec .v { 
+  font-size: 14px; 
+  color: #111827; 
+  margin-top: 6px; 
+  font-weight: 600;
+}
 
-.features ul { padding-left: 18px; margin: 6px 0; color: #374151; }
-.features li { margin: 8px 0; display:flex; gap:8px; align-items:flex-start; }
-.features ion-icon { color:#10b981; margin-top:4px }
+.features h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+}
 
-.meta { display:flex; gap: 18px; color:#6b7280; font-size:13px; }
+.features ul { 
+  padding-left: 0; 
+  margin: 0; 
+  color: #374151;
+  list-style: none;
+}
+.features li { 
+  margin: 10px 0; 
+  display: flex; 
+  gap: 10px; 
+  align-items: flex-start;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.features ion-icon { 
+  color: #10b981; 
+  margin-top: 2px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
 
+.meta { 
+  display: flex; 
+  gap: 16px; 
+  color: #6b7280; 
+  font-size: 13px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+.meta strong {
+  color: #111827;
+}
+
+/* Tablet and smaller desktops */
+@media (max-width: 1200px) {
+  .hero {
+    max-width: 900px;
+    gap: 16px;
+  }
+  
+  .image-wrap {
+    max-height: 400px;
+  }
+  
+  .hero-card {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 960px) {
+  .hero {
+    gap: 16px;
+  }
+  
+  .image-wrap {
+    max-height: 350px;
+  }
+  
+  .hero-card {
+    max-height: 350px;
+  }
+  
+  .name {
+    font-size: 20px;
+  }
+  
+  .price {
+    font-size: 24px;
+  }
+}
+
+/* Mobile Optimizations */
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; }
-  .image-wrap { min-height: 300px; order: -1; }
+  .hero { 
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .image-wrap { 
+    aspect-ratio: 4 / 3;
+    max-height: none;
+    min-height: 280px;
+    order: 1;
+  }
+  
+  .hero-card {
+    order: 2;
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .name {
+    font-size: 22px;
+  }
+  
+  .price {
+    font-size: 26px;
+  }
 }
 
 @media (max-width: 640px) {
-  .add { flex: 1; }
+  .container {
+    padding: 8px 8px 100px;
+  }
+  
+  .hero {
+    gap: 12px;
+  }
+  
+  .image-wrap {
+    border-radius: 16px;
+    min-height: 280px;
+  }
+  
+  .image-wrap .badges {
+    top: 10px;
+    left: 10px;
+    gap: 6px;
+    max-width: calc(100% - 20px);
+  }
+  
+  ion-chip.brand,
+  ion-chip.type {
+    font-size: 11px;
+    height: 24px;
+  }
+  
+  .rating {
+    padding: 6px 10px;
+    bottom: 10px;
+    left: 10px;
+  }
+  
+  .rating ion-icon {
+    font-size: 14px;
+  }
+  
+  .rating .reviews {
+    font-size: 12px;
+  }
+  
+  .hero-card {
+    padding: 18px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+  
+  .name {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  
+  .subtitle {
+    font-size: 13px;
+    margin-top: -4px;
+  }
+  
+  .price-row {
+    padding: 4px 0;
+  }
+  
+  .price {
+    font-size: 26px;
+  }
+  
+  .old {
+    font-size: 14px;
+  }
+  
+  .stock {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  
+  .short-desc {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .controls {
+    gap: 10px;
+  }
+  
+  .top-row {
+    gap: 10px;
+  }
+  
+  .add {
+    min-height: 50px;
+    font-size: 16px;
+  }
+  
+  .details {
+    padding: 16px;
+    border-radius: 16px;
+    gap: 14px;
+  }
+  
+  .accordion-toggle {
+    --min-height: 52px;
+  }
+  
+  .accordion-toggle ion-label h3 {
+    font-size: 17px;
+  }
+  
+  .spec-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .spec {
+    padding: 12px;
+  }
+  
+  .features h3 {
+    font-size: 17px;
+  }
+  
+  .features li {
+    font-size: 14px;
+    margin: 10px 0;
+  }
+  
+  .meta {
+    font-size: 12px;
+    gap: 12px;
+  }
 }
 </style>
