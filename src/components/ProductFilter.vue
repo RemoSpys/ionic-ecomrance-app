@@ -1,62 +1,38 @@
 <template>
-  <div class="filter-container glass">
+  <div class="filter-container">
 
-    <!-- Mobile Category Dropdown - ONLY ON MOBILE -->
-    <div class="mobile-cat-wrap" v-if="!isDesktop">
-      <div class="mobile-cat-header" @click="mobileCatOpen = !mobileCatOpen">
-        <ion-icon name="list"></ion-icon>
-        <span>{{ selectedCategoryLabel }}</span>
-        <ion-icon :name="mobileCatOpen ? 'chevron-up' : 'chevron-down'" class="chevron"></ion-icon>
-      </div>
+    <div class="filter-section">
+      <label class="filter-label">Category</label>
+      <select class="filter-select" v-model="filters.category" @change="emitUpdate">
+        <option value="all">All Categories</option>
+        <option value="pistols">Pistols</option>
+        <option value="rifles">Rifles</option>
+        <option value="smg">SMG</option>
+        <option value="protection">Protection</option>
+      </select>
+    </div>
 
-      <div class="mobile-cat-dropdown" v-if="mobileCatOpen">
+    <div class="filter-section">
+      <label class="filter-label">Stock</label>
+      <div class="button-group">
         <button
-          v-for="cat in categories"
-          :key="cat.value"
-          class="dropdown-item"
-          :class="{ active: filters.category === cat.value }"
-          @click="setCategory(cat.value); mobileCatOpen=false;"
+          v-for="opt in stockOptions"
+          :key="opt.value"
+          class="filter-btn"
+          :class="{ active: filters.stock === opt.value }"
+          @click="setStock(opt.value)"
         >
-          {{ cat.label }}
+          {{ opt.label }}
         </button>
       </div>
     </div>
 
-    <!-- Desktop Category Chips - ONLY ON DESKTOP -->
-    <div class="h-scroll desktop-only" v-if="isDesktop">
-      <button
-        v-for="cat in categories"
-        :key="cat.value"
-        class="chip icon-chip"
-        :class="{ active: filters.category === cat.value }"
-        @click="setCategory(cat.value)"
-      >
-        <ion-icon :name="cat.icon"></ion-icon>
-        {{ cat.label }}
-      </button>
-    </div>
-
-    <!-- Stock Options -->
-    <div class="options-row">
-      <button
-        v-for="opt in stockOptions"
-        :key="opt.value"
-        class="chip small icon-chip"
-        :class="{ active: filters.stock === opt.value }"
-        @click="setStock(opt.value)"
-      >
-        <ion-icon :name="opt.icon"></ion-icon>
-        {{ opt.label }}
-      </button>
-    </div>
-
-    <!-- Sort Dropdown -->
-    <div class="dropdown-wrap">
-      <ion-icon name="funnel" class="dropdown-icon"></ion-icon>
-      <select class="dropdown" v-model="filters.sort" @change="emitUpdate">
+    <div class="filter-section">
+      <label class="filter-label">Sort By</label>
+      <select class="filter-select" v-model="filters.sort" @change="emitUpdate">
         <option value="default">Recommended</option>
-        <option value="cheap">Price: Low → High</option>
-        <option value="expensive">Price: High → Low</option>
+        <option value="cheap">Price: Low to High</option>
+        <option value="expensive">Price: High to Low</option>
         <option value="rating">Top Rated</option>
         <option value="newest">Newest First</option>
       </select>
@@ -66,8 +42,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted, onUnmounted } from "vue"
-import { IonIcon } from "@ionic/vue"
+import { reactive } from "vue"
 
 const emit = defineEmits(["update"])
 
@@ -77,253 +52,134 @@ const filters = reactive({
   sort: "default"
 })
 
-const mobileCatOpen = ref(false)
-const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
-
-const isDesktop = computed(() => windowWidth.value >= 768)
-
-const updateWidth = () => {
-  windowWidth.value = window.innerWidth
-}
-
-onMounted(() => {
-  if (typeof window !== 'undefined') {
-    window.addEventListener('resize', updateWidth)
-    updateWidth() // Initial check
-  }
-})
-
-onUnmounted(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('resize', updateWidth)
-  }
-})
-
-const categories = [
-  { value: "all", label: "All", icon: "apps" },
-  { value: "pistols", label: "Pistols", icon: "body" },
-  { value: "rifles", label: "Rifles", icon: "shield" },
-  { value: "smg", label: "SMG", icon: "flash" },
-  { value: "protection", label: "Protection", icon: "alert" }
-]
-
 const stockOptions = [
-  { value: "all", label: "All", icon: "layers" },
-  { value: "inStock", label: "In Stock", icon: "checkmark-circle" },
-  { value: "lowStock", label: "Low", icon: "alert-circle" },
-  { value: "outOfStock", label: "Out", icon: "close-circle" }
+  { value: "all", label: "All" },
+  { value: "inStock", label: "In Stock" },
+  { value: "lowStock", label: "Low" },
+  { value: "outOfStock", label: "Out" }
 ]
-
-const selectedCategoryLabel = computed(() => {
-  return categories.find(c => c.value === filters.category)?.label || "Category"
-})
-
-const setCategory = (val) => {
-  filters.category = val
-  emitUpdate()
-}
 
 const setStock = (val) => {
   filters.stock = val
   emitUpdate()
 }
 
-const emitUpdate = () => emit("update", { ...filters })
+const emitUpdate = () => {
+  emit("update", { ...filters })
+}
 </script>
 
 <style scoped>
 .filter-container {
-  padding: 16px;
-  border-radius: 22px;
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(22px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.28);
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-/* Mobile Category Dropdown */
-.mobile-cat-wrap {
+.filter-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.mobile-cat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.12);
+.filter-label {
+  font-size: 14px;
   font-weight: 700;
-  cursor: pointer;
-  transition: .15s;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.mobile-cat-header:hover {
-  background: #f3f4f6;
-}
-
-.mobile-cat-header ion-icon:first-child {
-  opacity: .7;
-}
-
-.mobile-cat-dropdown {
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid rgba(0,0,0,0.12);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  animation: fadeIn .25s ease;
-}
-
-.dropdown-item {
+.filter-select {
   padding: 12px 16px;
-  text-align: left;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  font-size: 15px;
   font-weight: 600;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  background: #fff;
+  color: #1f2937;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.2s;
 }
 
-.dropdown-item:last-child {
-  border-bottom: none;
+.filter-select:hover {
+  border-color: #d1d5db;
 }
 
-.dropdown-item.active {
-  background: #2563eb;
-  color: white;
-}
-
-.dropdown-item:hover {
-  background: #f3f4f6;
-}
-
-.dropdown-item.active:hover {
-  background: #1d4ed8;
-}
-
-/* Desktop Category Chips */
-.h-scroll {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding-bottom: 4px;
-  scroll-snap-type: x mandatory;
-}
-
-.h-scroll::-webkit-scrollbar { 
-  display: none;
-}
-
-.chip {
-  padding: 10px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,0.08);
-  background: #fff;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: 0.18s;
-}
-
-.chip:hover {
-  background: #f3f4f6;
-  transform: translateY(-1px);
-}
-
-.chip.active {
-  background: #2563eb;
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 14px rgba(37,99,235,.28);
-}
-
-.chip.active:hover {
-  background: #1d4ed8;
-}
-
-.options-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.dropdown-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.dropdown-icon {
-  position: absolute;
-  left: 16px;
-  opacity: .6;
-  pointer-events: none;
-  font-size: 18px;
-}
-
-.dropdown {
-  padding: 12px 16px 12px 44px;
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.75);
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: 0.15s;
-  appearance: none;
-}
-
-.dropdown:hover {
-  background: rgba(255,255,255,0.9);
-}
-
-.dropdown:focus {
+.filter-select:focus {
   outline: none;
   border-color: #2563eb;
-  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-@keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(-6px);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0);
-  }
+.button-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-/* Small mobile optimization */
-@media (max-width: 400px) {
+.filter-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.filter-btn.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
+@media (min-width: 640px) {
   .filter-container {
-    padding: 12px;
-    gap: 12px;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
   }
-  
-  .mobile-cat-header {
-    padding: 10px 14px;
-    font-size: 14px;
+
+  .filter-section {
+    flex: 1;
+    min-width: 0;
   }
-  
-  .chip {
-    padding: 8px 12px;
-    font-size: 13px;
+
+  .filter-section:nth-child(2) {
+    flex: 1.5;
   }
-  
-  .dropdown {
-    padding: 10px 14px 10px 40px;
-    font-size: 14px;
+
+  .button-group {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .filter-container {
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .button-group {
+    gap: 10px;
+  }
+
+  .filter-btn {
+    padding: 12px 20px;
+    font-size: 15px;
   }
 }
 </style>
