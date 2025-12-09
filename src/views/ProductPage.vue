@@ -70,7 +70,7 @@
                 @click="addToCart"
               >
                 <ion-icon slot="start" :icon="cartOutline" />
-                Add to cart
+                Add to cart2
               </ion-button>
 
               <ion-button 
