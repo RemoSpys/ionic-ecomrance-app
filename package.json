@@ -12,6 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
     "@ionic/vue": "^8.7.9",
     "@ionic/vue-router": "^8.7.9",
     "axios": "^1.13.2",
