@@ -53,24 +53,13 @@
             <p class="short-desc">{{ product.description }}</p>
 
             <div class="controls">
-              <div class="top-row">
-                <div class="qty">
-                  <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
-                    <ion-icon :icon="removeOutline" />
-                  </ion-button>
-                  <div class="qty-value">{{ qty }}</div>
-                  <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
-                    <ion-icon :icon="addOutline" />
-                  </ion-button>
-                </div>
-
-                <ion-button 
-                  class="wish" 
-                  fill="outline" 
-                  @click="toggleWishlist"
-                  :disabled="wishlistLoading"
-                >
-                  <ion-icon :icon="isInWishlist ? heart : heartOutline" />
+              <div class="qty">
+                <ion-button size="small" fill="clear" @click="decr" :disabled="qty === 1 || product.stock === 0">
+                  <ion-icon :icon="removeOutline" />
+                </ion-button>
+                <div class="qty-value">{{ qty }}</div>
+                <ion-button size="small" fill="clear" @click="incr" :disabled="qty >= product.stock">
+                  <ion-icon :icon="addOutline" />
                 </ion-button>
               </div>
 
@@ -79,10 +68,18 @@
                 color="primary"
                 :disabled="product.stock === 0"
                 @click="addToCart"
-                expand="block"
               >
                 <ion-icon slot="start" :icon="cartOutline" />
                 Add to cart
+              </ion-button>
+
+              <ion-button 
+                class="wish" 
+                fill="clear" 
+                @click="toggleWishlist"
+                :disabled="wishlistLoading"
+              >
+                <ion-icon :icon="isInWishlist ? heart : heartOutline" />
               </ion-button>
             </div>
           </div>
@@ -314,21 +311,18 @@ onMounted(loadProduct)
   left: 12px;
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 ion-chip.brand {
   background: rgba(37,99,235,0.12);
   color: #1e3a8a;
   font-weight: 700;
   border-radius: 999px;
-  font-size: 12px;
 }
 ion-chip.type {
   background: rgba(16,185,129,0.08);
   color: #065f46;
   font-weight: 700;
   border-radius: 999px;
-  font-size: 12px;
 }
 
 .rating {
@@ -337,39 +331,36 @@ ion-chip.type {
   left: 12px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(10px);
-  padding: 8px 12px;
+  gap: 8px;
+  background: rgba(255,255,255,0.7);
+  padding: 6px 8px;
   border-radius: 999px;
-  box-shadow: 0 6px 16px rgba(16,24,40,0.1);
+  box-shadow: 0 6px 16px rgba(16,24,40,0.06);
 }
 .rating ion-icon { font-size: 16px; color: #fbbf24; }
 .rating .star-on { color: #f59e0b; }
-.rating .reviews { font-size: 13px; color: #374151; font-weight: 600; }
+.rating .reviews { font-size: 13px; color: #374151; }
 
 .hero-card {
   background: #ffffff;
   border-radius: 16px;
-  padding: 20px;
+  padding: 18px;
   box-shadow: 0 14px 34px rgba(16,24,40,0.06);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .name {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 800;
   margin: 0;
-  line-height: 1.3;
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: #6b7280;
-  margin-top: -6px;
-  font-weight: 500;
+  margin-top: -4px;
 }
 
 .price-row {
@@ -377,24 +368,11 @@ ion-chip.type {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
-.price-block { 
-  display: flex; 
-  align-items: baseline; 
-  gap: 10px; 
-}
-.price { 
-  font-size: 30px; 
-  color: #1e40af; 
-  font-weight: 800; 
-}
-.old { 
-  color: #9ca3af; 
-  text-decoration: line-through; 
-  font-size: 15px; 
-}
+.price-block { display: flex; align-items: baseline; gap: 10px; }
+.price { font-size: 28px; color: #1e40af; font-weight: 800; }
+.old { color: #9ca3af; text-decoration: line-through; font-size: 14px; }
 
 .stock {
   display: inline-flex;
@@ -402,299 +380,76 @@ ion-chip.type {
   gap: 6px;
   color: #065f46;
   font-weight: 700;
-  font-size: 13px;
-  padding: 6px 12px;
-  background: rgba(16,185,129,0.1);
-  border-radius: 999px;
 }
-.stock.out { 
-  color: #b91c1c; 
-  background: rgba(185,28,28,0.1);
-}
-.stock.low { 
-  color: #b45309; 
-  background: rgba(180,83,9,0.1);
-}
+.stock.out { color: #b91c1c; }
+.stock.low { color: #b45309; }
 
-.short-desc { 
-  color: #374151; 
-  line-height: 1.5; 
-  font-size: 14px;
-}
+.short-desc { color: #374151; line-height: 1.45; }
 
 .controls {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.top-row {
-  display: flex;
   gap: 12px;
   align-items: center;
+  margin-top: 6px;
 }
 
 .qty {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 8px;
   border-radius: 12px;
   background: #f3f4f6;
-  min-height: 44px;
-  flex: 1;
 }
-.qty-value { 
-  min-width: 32px; 
-  text-align: center; 
-  font-weight: 700; 
-  font-size: 16px;
-}
-.qty ion-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  min-width: 36px;
-  min-height: 36px;
-}
+.qty-value { min-width: 26px; text-align: center; font-weight: 700; }
 
-.add { 
-  --border-radius: 12px; 
-  width: 100%;
-  min-height: 48px;
-  font-weight: 700; 
-  font-size: 15px;
-}
-
-.wish { 
-  color: #ef4444;
-  --border-radius: 12px;
-  min-height: 44px;
-  min-width: 44px;
-}
+.add { --border-radius: 12px; padding: 10px 14px; font-weight: 700; }
+.wish { color: #ef4444; }
 
 .details {
   background: #fff;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 14px;
   box-shadow: 0 10px 30px rgba(16,24,40,0.04);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .accordion-toggle {
   --padding-start: 0;
   --padding-end: 0;
-  --min-height: 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
 }
-.accordion-toggle ion-label h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-}
-.accordion-toggle ion-label .muted {
-  font-size: 13px;
-  color: #9ca3af;
-  margin-top: 4px;
-}
-.accordion-toggle ion-icon { 
-  transition: transform .28s ease;
-  font-size: 24px;
-}
+.accordion-toggle ion-icon { transition: transform .28s ease; }
 .accordion-toggle ion-icon.open { transform: rotate(180deg); }
 
 .spec-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
   gap: 12px;
   padding: 8px 0;
 }
 
-.spec { 
-  background: #f8fafc; 
-  padding: 12px; 
-  border-radius: 10px; 
-}
-.spec .k { 
-  font-size: 12px; 
-  color: #6b7280; 
-  font-weight: 700; 
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.spec .v { 
-  font-size: 14px; 
-  color: #111827; 
-  margin-top: 6px; 
-  font-weight: 600;
-}
+.spec { background: #f8fafc; padding: 10px; border-radius: 10px; }
+.spec .k { font-size: 12px; color: #6b7280; font-weight: 700; }
+.spec .v { font-size: 14px; color: #111827; margin-top: 6px; }
 
-.features h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 12px 0;
-}
+.features ul { padding-left: 18px; margin: 6px 0; color: #374151; }
+.features li { margin: 8px 0; display:flex; gap:8px; align-items:flex-start; }
+.features ion-icon { color:#10b981; margin-top:4px }
 
-.features ul { 
-  padding-left: 0; 
-  margin: 0; 
-  color: #374151;
-  list-style: none;
-}
-.features li { 
-  margin: 10px 0; 
-  display: flex; 
-  gap: 10px; 
-  align-items: flex-start;
-  font-size: 14px;
-  line-height: 1.5;
-}
-.features ion-icon { 
-  color: #10b981; 
-  margin-top: 2px;
-  font-size: 18px;
-  flex-shrink: 0;
-}
+.meta { display:flex; gap: 18px; color:#6b7280; font-size:13px; }
 
-.meta { 
-  display: flex; 
-  gap: 16px; 
-  color: #6b7280; 
-  font-size: 13px;
-  flex-wrap: wrap;
-  padding-top: 12px;
-  border-top: 1px solid #e5e7eb;
-}
-.meta strong {
-  color: #111827;
-}
-
-/* Mobile Optimizations */
 @media (max-width: 860px) {
-  .hero { 
-    grid-template-columns: 1fr; 
-  }
-  
-  .image-wrap { 
-    min-height: 280px;
-  }
-  
-  .name {
-    font-size: 22px;
-  }
-  
-  .price {
-    font-size: 26px;
-  }
+  .hero { grid-template-columns: 1fr; }
+  .image-wrap { min-height: 300px; order: -1; }
 }
 
 @media (max-width: 640px) {
-  .container {
-    padding: 12px 12px 100px;
-  }
-  
-  .hero {
-    gap: 12px;
-  }
-  
-  .image-wrap {
-    border-radius: 14px;
-    min-height: 240px;
-  }
-  
-  .image-wrap .badges {
-    top: 10px;
-    left: 10px;
-    gap: 6px;
-  }
-  
-  ion-chip.brand,
-  ion-chip.type {
-    font-size: 11px;
-    height: 24px;
-  }
-  
-  .rating {
-    padding: 6px 10px;
-    bottom: 10px;
-    left: 10px;
-  }
-  
-  .rating ion-icon {
-    font-size: 14px;
-  }
-  
-  .rating .reviews {
-    font-size: 12px;
-  }
-  
-  .hero-card {
-    padding: 16px;
-    border-radius: 14px;
-    gap: 12px;
-  }
-  
-  .name {
-    font-size: 20px;
-  }
-  
-  .subtitle {
-    font-size: 13px;
-  }
-  
-  .price {
-    font-size: 24px;
-  }
-  
-  .old {
-    font-size: 14px;
-  }
-  
-  .stock {
-    font-size: 12px;
-    padding: 5px 10px;
-  }
-  
-  .short-desc {
-    font-size: 13px;
-  }
-  
-  .details {
-    padding: 14px;
-    border-radius: 14px;
-    gap: 14px;
-  }
-  
-  .accordion-toggle ion-label h3 {
-    font-size: 16px;
-  }
-  
-  .spec-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-  
-  .spec {
-    padding: 10px;
-  }
-  
-  .features h3 {
-    font-size: 16px;
-  }
-  
-  .features li {
-    font-size: 13px;
-    margin: 8px 0;
-  }
-  
-  .meta {
-    font-size: 12px;
-    gap: 12px;
-  }
+  .add { flex: 1; }
 }
 </style>
