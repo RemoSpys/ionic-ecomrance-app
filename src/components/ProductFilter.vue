@@ -1,7 +1,8 @@
 <template>
   <div class="filter-container glass">
 
-    <div class="mobile-cat-wrap">
+    <!-- Mobile Category Dropdown - ONLY ON MOBILE -->
+    <div class="mobile-cat-wrap" v-if="!isDesktop">
       <div class="mobile-cat-header" @click="mobileCatOpen = !mobileCatOpen">
         <ion-icon name="list"></ion-icon>
         <span>{{ selectedCategoryLabel }}</span>
@@ -21,7 +22,8 @@
       </div>
     </div>
 
-    <div class="h-scroll desktop-only">
+    <!-- Desktop Category Chips - ONLY ON DESKTOP -->
+    <div class="h-scroll desktop-only" v-if="isDesktop">
       <button
         v-for="cat in categories"
         :key="cat.value"
@@ -34,6 +36,7 @@
       </button>
     </div>
 
+    <!-- Stock Options -->
     <div class="options-row">
       <button
         v-for="opt in stockOptions"
@@ -47,6 +50,7 @@
       </button>
     </div>
 
+    <!-- Sort Dropdown -->
     <div class="dropdown-wrap">
       <ion-icon name="funnel" class="dropdown-icon"></ion-icon>
       <select class="dropdown" v-model="filters.sort" @change="emitUpdate">
@@ -62,18 +66,38 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed } from "vue";
-import { IonIcon } from "@ionic/vue";
+import { reactive, ref, computed, onMounted, onUnmounted } from "vue"
+import { IonIcon } from "@ionic/vue"
 
-const emit = defineEmits(["update"]);
+const emit = defineEmits(["update"])
 
 const filters = reactive({
   category: "all",
   stock: "all",
   sort: "default"
-});
+})
 
-const mobileCatOpen = ref(false);
+const mobileCatOpen = ref(false)
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+const isDesktop = computed(() => windowWidth.value >= 768)
+
+const updateWidth = () => {
+  windowWidth.value = window.innerWidth
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('resize', updateWidth)
+    updateWidth() // Initial check
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', updateWidth)
+  }
+})
 
 const categories = [
   { value: "all", label: "All", icon: "apps" },
@@ -81,30 +105,30 @@ const categories = [
   { value: "rifles", label: "Rifles", icon: "shield" },
   { value: "smg", label: "SMG", icon: "flash" },
   { value: "protection", label: "Protection", icon: "alert" }
-];
+]
 
 const stockOptions = [
   { value: "all", label: "All", icon: "layers" },
   { value: "inStock", label: "In Stock", icon: "checkmark-circle" },
   { value: "lowStock", label: "Low", icon: "alert-circle" },
   { value: "outOfStock", label: "Out", icon: "close-circle" }
-];
+]
 
 const selectedCategoryLabel = computed(() => {
-  return categories.find(c => c.value === filters.category)?.label || "Category";
-});
+  return categories.find(c => c.value === filters.category)?.label || "Category"
+})
 
 const setCategory = (val) => {
-  filters.category = val;
-  emitUpdate();
-};
+  filters.category = val
+  emitUpdate()
+}
 
 const setStock = (val) => {
-  filters.stock = val;
-  emitUpdate();
-};
+  filters.stock = val
+  emitUpdate()
+}
 
-const emitUpdate = () => emit("update", { ...filters });
+const emitUpdate = () => emit("update", { ...filters })
 </script>
 
 <style scoped>
@@ -119,11 +143,13 @@ const emitUpdate = () => emit("update", { ...filters });
   gap: 16px;
 }
 
+/* Mobile Category Dropdown */
 .mobile-cat-wrap {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+
 .mobile-cat-header {
   display: flex;
   align-items: center;
@@ -136,12 +162,15 @@ const emitUpdate = () => emit("update", { ...filters });
   cursor: pointer;
   transition: .15s;
 }
+
 .mobile-cat-header:hover {
   background: #f3f4f6;
 }
+
 .mobile-cat-header ion-icon:first-child {
   opacity: .7;
 }
+
 .mobile-cat-dropdown {
   background: #fff;
   border-radius: 16px;
@@ -151,33 +180,35 @@ const emitUpdate = () => emit("update", { ...filters });
   overflow: hidden;
   animation: fadeIn .25s ease;
 }
+
 .dropdown-item {
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
   border-bottom: 1px solid rgba(0,0,0,0.06);
   background: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+
 .dropdown-item:last-child {
   border-bottom: none;
 }
+
 .dropdown-item.active {
   background: #2563eb;
   color: white;
 }
+
 .dropdown-item:hover {
   background: #f3f4f6;
 }
 
-.desktop-only {
-  display: none;
+.dropdown-item.active:hover {
+  background: #1d4ed8;
 }
 
-@media (min-width: 600px) {
-  .desktop-only { display: flex; }
-  .mobile-cat-wrap { display: none; }
-}
-
+/* Desktop Category Chips */
 .h-scroll {
   display: flex;
   overflow-x: auto;
@@ -185,7 +216,10 @@ const emitUpdate = () => emit("update", { ...filters });
   padding-bottom: 4px;
   scroll-snap-type: x mandatory;
 }
-.h-scroll::-webkit-scrollbar { display: none; }
+
+.h-scroll::-webkit-scrollbar { 
+  display: none;
+}
 
 .chip {
   padding: 10px 16px;
@@ -197,13 +231,24 @@ const emitUpdate = () => emit("update", { ...filters });
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+  cursor: pointer;
   transition: 0.18s;
 }
+
+.chip:hover {
+  background: #f3f4f6;
+  transform: translateY(-1px);
+}
+
 .chip.active {
   background: #2563eb;
   color: white;
   border-color: transparent;
   box-shadow: 0 4px 14px rgba(37,99,235,.28);
+}
+
+.chip.active:hover {
+  background: #1d4ed8;
 }
 
 .options-row {
@@ -217,12 +262,15 @@ const emitUpdate = () => emit("update", { ...filters });
   display: flex;
   align-items: center;
 }
+
 .dropdown-icon {
   position: absolute;
   left: 16px;
   opacity: .6;
   pointer-events: none;
+  font-size: 18px;
 }
+
 .dropdown {
   padding: 12px 16px 12px 44px;
   border-radius: 18px;
@@ -230,10 +278,52 @@ const emitUpdate = () => emit("update", { ...filters });
   background: rgba(255,255,255,0.75);
   font-weight: 600;
   width: 100%;
+  cursor: pointer;
+  transition: 0.15s;
+  appearance: none;
+}
+
+.dropdown:hover {
+  background: rgba(255,255,255,0.9);
+}
+
+.dropdown:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(-6px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
+/* Small mobile optimization */
+@media (max-width: 400px) {
+  .filter-container {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .mobile-cat-header {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  
+  .chip {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .dropdown {
+    padding: 10px 14px 10px 40px;
+    font-size: 14px;
+  }
 }
 </style>
